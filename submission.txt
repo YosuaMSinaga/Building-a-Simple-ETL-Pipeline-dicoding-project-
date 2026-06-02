@@ -1,0 +1,22 @@
+Submission for Building a Simple ETL Pipeline Project
+
+Cara Menjalankan:
+1. Install dependencies:
+   pip install -r requirements.txt
+
+2. Jalankan pipeline dengan:
+   python main.py
+
+3. Menjalankan unit test pada folder tests
+    python -m pytest tests
+
+4.  Menjalankan test coverage pada folder tests
+    coverage run -m pytest tests
+
+# Url Google Sheets:
+link google sheets : https://docs.google.com/spreadsheets/d/1fM5gTCmhkmEBY783m7FW4B1lWc7oSj3jQxvpDff8oyk/edit?gid=0#gid=0
+
+Pembuat:
+Nama  : Yosua Marcelinus Sinaga
+Email : yosuasinaga2104@gmail.com
+Tanggal Submit : 02/6/2026
