@@ -4,31 +4,18 @@ from googleapiclient.discovery import build
 
 
 def store_to_csv(df):
-
     try:
-        df.to_csv(
-            "products.csv",
-            index=False
-        )
-
-        print("CSV berhasil")
-
+        df.to_csv("products.csv", index=False)
+        print("CSV berhasil disimpan.")
     except Exception as e:
-        print(e)
+        print(f"Gagal menyimpan CSV: {e}")
 
 
-def store_to_spreadsheet(
-        df,
-        spreadsheet_id
-):
-
+def store_to_spreadsheet(df, spreadsheet_id):
     try:
-
         creds = Credentials.from_service_account_file(
             "google-sheets-api.json",
-            scopes=[
-                "https://www.googleapis.com/auth/spreadsheets"
-            ]
+            scopes=["https://www.googleapis.com/auth/spreadsheets"]
         )
 
         service = build(
@@ -37,9 +24,7 @@ def store_to_spreadsheet(
             credentials=creds
         )
 
-        values = [
-            df.columns.tolist()
-        ] + df.astype(str).values.tolist()
+        values = [df.columns.tolist()] + df.astype(str).values.tolist()
 
         body = {
             "values": values
@@ -52,41 +37,66 @@ def store_to_spreadsheet(
             body=body
         ).execute()
 
-        print("Spreadsheet berhasil")
+        print("Spreadsheet berhasil diperbarui.")
 
     except Exception as e:
-        print(e)
+        print(f"Gagal ke Spreadsheet: {e}")
 
 
-def create_database(db_name):
-
+def create_database(
+    db_user,
+    db_password,
+    db_host,
+    db_port,
+    db_name
+):
     try:
+        admin_url = (
+            f"postgresql+psycopg2://"
+            f"{db_user}:{db_password}"
+            f"@{db_host}:{db_port}/postgres"
+        )
 
         engine = create_engine(
-            "postgresql+psycopg2://developer:supersecretpassword@localhost/postgres"
+            admin_url,
+            isolation_level="AUTOCOMMIT"
         )
 
         with engine.connect() as conn:
 
-            conn.execute(
-                text(
-                    f"commit; create database {db_name}"
-                )
+            query_check = text(
+                "SELECT 1 FROM pg_database "
+                "WHERE datname = :db_name"
             )
 
-        print("Database dibuat")
+            check_db = conn.execute(
+                query_check,
+                {"db_name": db_name}
+            )
 
-    except Exception:
-        print("Database sudah ada")
+            if not check_db.scalar():
+
+                query_create = text(
+                    f'CREATE DATABASE "{db_name}"'
+                )
+
+                conn.execute(query_create)
+
+                print(
+                    f"Database '{db_name}' berhasil dibuat."
+                )
+
+            else:
+                print(
+                    f"Database '{db_name}' sudah ada."
+                )
+
+    except Exception as e:
+        print(f"Gagal membuat database: {e}")
 
 
-def store_to_postgre(
-        df,
-        db_url
-):
-
+def store_to_postgre(df, db_url):
     try:
-
         engine = create_engine(db_url)
 
         df.to_sql(
@@ -96,7 +106,7 @@ def store_to_postgre(
             index=False
         )
 
-        print("PostgreSQL berhasil")
+        print("Data berhasil masuk ke PostgreSQL.")
 
     except Exception as e:
-        print(e)
+        print(f"Gagal ke PostgreSQL: {e}")
